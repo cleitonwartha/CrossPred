@@ -4,7 +4,7 @@
 ### This script will run statistical analyses of the phenotypic data from the SoyNAM project/package
 ### Phenotypic analysis of validation family data: obtain Vg and rG
 ### Author: Cleiton Wartha
-### Last modified: July 19, 2022
+### Last modified: February, 2024
 ################################################################################
 
 #Install packages and load libraries
