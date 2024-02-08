@@ -4,7 +4,7 @@
 ### This script will run statistical analyses of the phenotypic data from the SoyNAM project/package
 ### Phenotypic analysis of validation family data: obtain BLUEs
 ### Author: Cleiton Wartha
-### Last modified: July, 2022
+### Last modified: February, 2024
 ################################################################################
 
 #Install packages and load libraries
