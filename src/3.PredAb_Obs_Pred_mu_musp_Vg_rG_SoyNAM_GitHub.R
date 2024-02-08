@@ -7,7 +7,7 @@
 ## 2. Predicted values from PopVar using pheno data as BLUEs
 ## 3. Data visualization
 ## Author: Cleiton Wartha
-## Last modified: July, 2022
+## Last modified: February, 2024
 ##
 ################################################################################
 #Install packages and load libraries
