@@ -172,7 +172,7 @@ predObsrG <- left_join(rG.bv, predrG) %>%
 # Calculate the correlation between predictions and observations
 #Load bootstrapping function
 source("src/bootstrap.R") #bootstrap by J Neyhart
-boot_reps <- 50000
+boot_reps <- 10000
 alpha <- 0.05
 set.seed(2024)
 #mu
