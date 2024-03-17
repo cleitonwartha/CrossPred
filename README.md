@@ -1,7 +1,7 @@
 # CrossPred
  Genomic predictions of genetic variances and correlations among traits: empirical validation within the SoyNAM
 # Description
-This repository contains information and code for replicating the analyses performed in the pre-print manuscript:
+This repository contains information and code for replicating the analyzes performed in the pre-print manuscript:
 
 Manuscript title: "Genomic Predictions of Genetic Variances and Correlations Among Traits in Soybean" (reference number: HDY-23-A0189R)
 
