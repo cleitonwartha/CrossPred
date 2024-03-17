@@ -1,4 +1,4 @@
-#' Generalized bootstrapper
+#' Generalized bootstrapper by J Neyhart
 #' 
 #' @description Computes bootstrap resamples of a statistic
 #' 
