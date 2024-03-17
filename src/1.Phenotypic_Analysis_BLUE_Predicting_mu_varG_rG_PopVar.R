@@ -31,6 +31,7 @@ if (!require('lme4')) install.packages('lme4'); library(lme4)
 if (!require('parallel')) install.packages('parallel'); library(parallel)
 if (!require('doParallel')) install.packages('doParallel'); library(doParallel)
 if (!require('data.table')) install.packages('data.table'); library(data.table)
+if (!require('readxl')) install.packages('readxl'); library(readxl)
 if (!require('PopVar')) install.packages('PopVar'); library(PopVar)
 asreml.options(ai.sing = TRUE, fail= "soft")
 options(scipen = 999) #prevent the triggering of scientific notation for integers
