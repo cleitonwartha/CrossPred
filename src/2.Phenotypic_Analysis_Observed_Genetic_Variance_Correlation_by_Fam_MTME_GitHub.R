@@ -4,16 +4,31 @@
 ### This script will run statistical analyses of the phenotypic data from the SoyNAM project/package
 ### Phenotypic analysis of validation family data: obtain Vg and rG
 ### Author: Cleiton Wartha
-### Last modified: February, 2024
+### > sessionInfo()
+### R version 4.3.3 (2024-02-29 ucrt)
+### Platform: x86_64-w64-mingw32/x64 (64-bit)
+### Running under: Windows 10 x64 (build 19045)
+### 
+### Matrix products: default
+### locale:
+### [1] LC_COLLATE=English_United States.utf8  LC_CTYPE=English_United States.utf8    LC_MONETARY=English_United States.utf8 LC_NUMERIC=C                          
+### [5] LC_TIME=English_United States.utf8    
+### time zone: America/Chicago
+### tzcode source: internal
+### attached base packages:
+###   [1] stats     graphics  grDevices utils     datasets  methods   base     
+### other attached packages:
+### [1] gtools_3.9.5      data.table_1.14.8 lme4_1.1-35.1     asreml_4.2.0.257  Matrix_1.6-5      lubridate_1.9.3   forcats_1.0.0     stringr_1.5.1    
+### [9] dplyr_1.1.4       purrr_1.0.2       readr_2.1.4       tidyr_1.3.0       tibble_3.2.1      ggplot2_3.4.4     tidyverse_2.0.0   SoyNAM_1.6.2 
 ################################################################################
 
 #Install packages and load libraries
 if (!require('SoyNAM')) install.packages('SoyNAM'); library(SoyNAM)
 if (!require('tidyverse')) install.packages('tidyverse'); library(tidyverse)
 if (!require('asreml')) install.packages('asreml'); library(asreml)
-if (!require('asremlPlus')) install.packages('asremlPlus'); library(asremlPlus)
 if (!require('lme4')) install.packages('lme4'); library(lme4)
 if (!require('data.table')) install.packages('data.table'); library(data.table)
+if (!require('gtools')) install.packages('gtools'); library(gtools)
 asreml.options(ai.sing = TRUE, fail= "soft")
 options(scipen = 999) #prevent the triggering of scientific notation for integers
 #setwd(fs::path_home()) #set the working directory 
@@ -111,7 +126,7 @@ for (f in fam){ #numerical vector of the families
   }
 }
 endTime <- Sys.time() #calculate end time
-print(endTime - startTime) # print recorded time
+print(endTime - startTime) # print recorded time 32.83392 secs
 
 #Retrieve only genetic variances from univariate model
 varG.uv <- varComp.uv %>% filter(rowname == "strain") %>% # filter only the genetic variances
@@ -143,7 +158,7 @@ for (f in fam){ #numerical vector of the families
   }
 }
 endTime <- Sys.time() #calculate end time
-print(endTime - startTime) # print recorded time
+print(endTime - startTime) # print recorded time 2.86 min
 
 #Retrieve only genetic correlations from bivariate model
 rG.bv <- varComp.bv %>% filter(grepl('trait:strain', rowname),
@@ -155,7 +170,7 @@ rG.bv <- varComp.bv %>% filter(grepl('trait:strain', rowname),
 #The correlation output for each family is the average across all families
 # at(family) included to estimate parameters within a family
 data.mv <- data.line %>% mutate_at(c('strain', 'family', 'environ', "ge"), as.factor) #convert random terms as factor
-
+startTime <- Sys.time() #calculate start time
 mv.asr <- asreml(fixed = cbind(height, lodging, maturity, oil, protein, size, yield) ~ trait + at(trait, 1):C.height + at(trait, 2):C.lodging +
                    at(trait, 3):C.maturity + at(trait, 4):C.oil + at(trait, 5):C.protein + at(trait, 6):C.size + at(trait, 7):C.yield, 
                  random = ~ corgh(trait):at(family):strain + us(trait):at(family):environ, # + us(trait):at(family):ge, ##interaction removed because the model did not converge in several instances with estimates near 1 or -1
@@ -164,7 +179,8 @@ mv.asr <- asreml(fixed = cbind(height, lodging, maturity, oil, protein, size, yi
                  workspace.mem = "8gb", na.action = na.method(x = "include", y = "include"),
                  ai.sing=T, maxit = 1000,
                  data = data.mv)
-
+endTime <- Sys.time() #calculate end time
+print(endTime - startTime) #3.16 mins
 #Retrieve the variance components from the .asr object
 #Genetic correlation - multivariate multi-trait model
 rG.mv <- summary(mv.asr)$varcomp %>% rownames_to_column(., var = "Component") %>%
@@ -184,4 +200,3 @@ varG.mv <- summary(mv.asr)$varcomp %>% rownames_to_column(., var = "Component") 
   rename(varG = component) %>% mutate_at(c("varG"), as.numeric) %>%
   select(-Component) %>%
   relocate(family, .before = trait)
-
