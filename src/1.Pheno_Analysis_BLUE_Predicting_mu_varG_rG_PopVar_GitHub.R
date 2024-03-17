@@ -4,17 +4,34 @@
 ### This script will run statistical analyses of the phenotypic data from the SoyNAM project/package
 ### Phenotypic analysis of validation family data: obtain BLUEs
 ### Author: Cleiton Wartha
-### Last modified: February, 2024
+### 
+### > sessionInfo()
+### R version 4.3.3 (2024-02-29 ucrt)
+### Platform: x86_64-w64-mingw32/x64 (64-bit)
+### Running under: Windows 10 x64 (build 19045) 
+### Matrix products: default 
+### locale:
+### [1] LC_COLLATE=English_United States.utf8  LC_CTYPE=English_United States.utf8
+### LC_MONETARY=English_United States.utf8 LC_NUMERIC=C LC_TIME=English_United States.utf8
+### time zone: America/Chicago
+### tzcode source: internal
+### attached base packages:
+### [1] parallel  stats     graphics  grDevices utils     datasets  methods   base
+### other attached packages:
+### [1] PopVar_1.3.0  data.table_1.14.8 doParallel_1.0.17 iterators_1.0.14  foreach_1.5.2     lme4_1.1-35.1     asreml_4.2.0.257  Matrix_1.6-5      SoyNAM_1.6.2     
+### [9] lubridate_1.9.3   forcats_1.0.0     stringr_1.5.1     dplyr_1.1.4       purrr_1.0.2       readr_2.1.4       tidyr_1.3.0       tibble_3.2.1     
+### [17] ggplot2_3.4.4     tidyverse_2.0.0 
 ################################################################################
 
 #Install packages and load libraries
-if (!require('data.table')) install.packages('data.table'); library(data.table)
-if (!require('SoyNAM')) install.packages('SoyNAM'); library(SoyNAM)
 if (!require('tidyverse')) install.packages('tidyverse'); library(tidyverse)
+if (!require('SoyNAM')) install.packages('SoyNAM'); library(SoyNAM)
 if (!require('asreml')) install.packages('asreml'); library(asreml)
 if (!require('lme4')) install.packages('lme4'); library(lme4)
 if (!require('parallel')) install.packages('parallel'); library(parallel)
 if (!require('doParallel')) install.packages('doParallel'); library(doParallel)
+if (!require('data.table')) install.packages('data.table'); library(data.table)
+if (!require('PopVar')) install.packages('PopVar'); library(PopVar)
 asreml.options(ai.sing = TRUE, fail= "soft")
 options(scipen = 999) #prevent the triggering of scientific notation for integers
 #setwd(fs::path_home()) #set the working directory 
@@ -102,7 +119,7 @@ startTime <- Sys.time() #calculate start time
     print(traits[t])
     #Fit the univariate model
     uv.asr <- asreml(fixed = form, #adding the interaction to the model does not change the BLUEs and results in not enough workspace in regular personal computers
-                     ai.sing= T, #na.action = na.method(x = "include", y = "include"),
+                     ai.sing= T,
                      workspace= "6gb",
                      data = data.line)
     #Extract the BLUEs from the model
@@ -124,7 +141,7 @@ startTime <- Sys.time() #calculate start time
     blue.long <- rbind(blue.long, blue.asr) #store results from each loop
   }
 endTime <- Sys.time() #calculate end time of BLUE calculation
-print(endTime - startTime) # print recorded time 10.84909 mins
+print(endTime - startTime) # print recorded time 7.70 min
 
 #Convert BLUE file from long to wide format
 pheno <- blue.long %>% select(-std.error) %>% #remove standard error not needed for downstream analysis
@@ -170,6 +187,14 @@ nCores<- detectCores() - 1
 # Starting parallel
 registerDoParallel(nCores)
 startTime <- Sys.time() #calculate start time
+################################################################################
+### WARNING: foreach loop can take several hours due to the training pop > 5000 ind
+### Recommendation is to run in a supercomputer cluster to have more cores available
+### Alternatively, computational time reduces dramatically if run with smaller training pop size
+### The output object predVal with the predicted values is available in obj3.RData
+### for downstream analyzes in the following script #3
+################################################################################
+
 # Foreach loop over each family c(2:6,8:15,17,18,22:34,36:42,48,50,54,64)
 predVal <-foreach(i = c(2:6,8:15,17,18,22:34,36:42,48,50,54,64), .packages = c("tidyverse","PopVar"), #family numbers hard coded in the numeric vector
                   .combine = rbind) %dopar% {
@@ -189,7 +214,6 @@ predVal <-foreach(i = c(2:6,8:15,17,18,22:34,36:42,48,50,54,64), .packages = c("
                                       tail.p = 0.1, models = c("rrBLUP"))
           }
 endTime <- Sys.time() #calculate end time of BLUE calculation
-print(endTime - startTime) # print recorded time - 1.46h for maturity and yield in seven families 2,3,4,5,6,8 (one fam per core)
-#write.csv(predVal, "Pred_PopVar_SoyNAM_mu_Vg_rG_ALL_fam_test.csv", row.names = F) #save output file
-
+print(endTime - startTime) # print recorded time - 1.46h for only maturity and yield in seven families 2,3,4,5,6,8 (one fam per core)
+#write.csv(predVal, "Pred_PopVar_SoyNAM_mu_Vg_rG_ALL_fam.csv", row.names = F) #save output file
 ##################    End of the run   #########################################
