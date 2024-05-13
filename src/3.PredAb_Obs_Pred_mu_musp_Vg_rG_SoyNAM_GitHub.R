@@ -482,32 +482,22 @@ df1<- predObsmu_musp %>%
                  legend.position = "none", strip.text.x = element_text(size=15),
                  axis.text = element_text(size = 8))
        })
-    # ## Re-order
-     plot_list <- plot_list[c(1,8,2,9,3,10,4,11, 5,12, 6,13,7,14)]
+   # ## Re-order
+     plot_list <- plot_list[c(1,8,2,9,3,10,4,11,5,12,6,13,7,14)]
      ## Edit parts of the grid
     ## Remove strips
      plot_list[c(3:14)] <- plot_list[c(3:14)] %>%
        map(~ . + theme(strip.text.x = element_blank(), strip.background.x = element_blank()))
      plot_list[c(2,4,6,8,10,12,14)] <- plot_list[c(2,4,6,8,10,12,14)] %>%
        map(~ . + theme(strip.text.y = element_blank(), strip.background.y = element_blank()))
-    # # Create the grid by rows
-     top <- plot_grid(plotlist = plot_list[1:2], ncol = 2, align = "h", rel_widths = c(1, 0.9, 0.9))
-     second <- plot_grid(plotlist = plot_list[3:4], ncol = 2, align = "h", rel_widths = c(1, 0.9, 0.9))
-     third <- plot_grid(plotlist = plot_list[5:6], ncol = 2, align = "h", rel_widths = c(1, 0.9, 0.9))
-     fourth <- plot_grid(plotlist = plot_list[7:8], ncol = 2, align = "h", rel_widths = c(1, 0.9, 0.9))
-     fifth <- plot_grid(plotlist = plot_list[9:10], ncol = 2, align = "h", rel_widths = c(1, 0.9, 0.9))
-     sixth <- plot_grid(plotlist = plot_list[11:12], ncol = 2, align = "h", rel_widths = c(1, 0.9, 0.9))
-     seventh <- plot_grid(plotlist = plot_list[13:14], ncol = 2, align = "h", rel_widths = c(1, 0.9, 0.9))
-    
-    p_grid <- plot_grid(top, second, third, fourth, fifth, sixth, seventh, ncol = 1, rel_heights = c(1, 0.9, 0.9))
+     #Create grids individually
+     p_grid <-  plot_grid(plotlist = plot_list[c(1:14)], ncol = 2, rel_widths = c(1, 0.9, 0.9), align = "v", axis = "l")
      # ## Add axis
      y_axis <- grid::textGrob(label = "Observed", gp = grid::gpar(fontsize = 20), rot = 90)
      x_axis <- grid::textGrob(label = "Predicted", gp = grid::gpar(fontsize = 20))
-    # 
     # # Plot again
     mu.musp.arrange <- grid.arrange(arrangeGrob(p_grid, left = y_axis, bottom = x_axis))
-    ggsave(filename = "Figure_2_3_ScatterPlot_MEAN_MUSP_Obs_Predicted.png", plot = mu.musp.arrange , height = 13, width = 9, dpi = 1000)
-    
+    ggsave(filename = "Figure_2_3_ScatterPlot_MEAN_MUSP_Obs_Predicted_aligned.png", plot = mu.musp.arrange , height = 13, width = 10, dpi = 1000)    
 ####################################
 # Figure 3. Observed by predicted varG
 predObsvarG <- predObsvarG %>%
