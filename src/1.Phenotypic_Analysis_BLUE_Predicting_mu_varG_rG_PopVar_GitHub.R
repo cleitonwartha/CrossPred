@@ -33,7 +33,6 @@ if (!require('doParallel')) install.packages('doParallel'); library(doParallel)
 if (!require('data.table')) install.packages('data.table'); library(data.table)
 if (!require('readxl')) install.packages('readxl'); library(readxl)
 if (!require('PopVar')) install.packages('PopVar'); library(PopVar)
-asreml.options(ai.sing = TRUE, fail= "soft")
 options(scipen = 999) #prevent the triggering of scientific notation for integers
 #setwd(fs::path_home()) #set the working directory 
 
@@ -70,6 +69,25 @@ line.chr <- as.character(unique(data.line.qa$strain))
 data.check.qa.raw <- pheno.raw %>% filter(strain %in% checks.chr)%>% #select only relevant columns
   dplyr::select(strain, environ, ge, family, spot, set, height, lodging, maturity, oil,
                 protein, size, yield)
+#Create summary file with observation counts of checks in each environment
+check.dat <- data.check.qa.raw %>% select(strain, environ) %>%
+  dplyr::group_by(strain, environ) %>%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %>%
+  mutate(strain=fct_reorder(strain, n, .desc=F))
+#Create heatmap using geom_tile()
+ Check.heatmap <- ggplot(data = check.dat, aes(x = environ, y = strain, fill = n)) +
+  geom_tile(color = "black") +
+    theme_classic()+
+    geom_text(aes(label = n), color = "black", size = 2) +
+    scale_fill_gradientn(colors = rev(hcl.colors(50, "Oranges"))) +
+    guides(fill = guide_colourbar(title = "N Observations")) +
+    labs(x = "Environment", y= "Check") +
+   scale_x_discrete(position = "top") +
+    theme(axis.title = element_text(size = 12, face = "bold"),
+          axis.text.x = element_text(size = 7),
+          axis.text.y = element_text(size = 8),
+          legend.position = "bottom")
+ggsave(filename = "Check_Count_by_Enviroment_Heatmap.png", plot = Check.heatmap, height = 8, width = 13, dpi = 500)
 #RILs file  
 data.line.qa.raw <-  pheno.raw %>% filter(!strain %in% checks.chr)%>% #select only relevant columns
   dplyr::select(strain, environ, ge, family, spot, set, height, lodging, maturity, oil,
@@ -119,8 +137,7 @@ startTime <- Sys.time() #calculate start time
     form <- model.uv[[t]]
     print(traits[t])
     #Fit the univariate model
-    uv.asr <- asreml(fixed = form, #adding the interaction to the model does not change the BLUEs and results in not enough workspace in regular personal computers
-                     ai.sing= T,
+    uv.asr <- asreml(fixed = form, #adding the interaction to the model does not change the BLUEs and results in not enough workspace in standard laptop specifications (RAM) 
                      workspace= "6gb",
                      data = data.line)
     #Extract the BLUEs from the model
