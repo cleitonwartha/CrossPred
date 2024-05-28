@@ -33,6 +33,7 @@ if (!require('doParallel')) install.packages('doParallel'); library(doParallel)
 if (!require('data.table')) install.packages('data.table'); library(data.table)
 if (!require('readxl')) install.packages('readxl'); library(readxl)
 if (!require('PopVar')) install.packages('PopVar'); library(PopVar)
+asreml.options(ai.sing = F)
 options(scipen = 999) #prevent the triggering of scientific notation for integers
 #setwd(fs::path_home()) #set the working directory 
 
@@ -142,7 +143,7 @@ startTime <- Sys.time() #calculate start time
                      data = data.line)
     #Extract the BLUEs from the model
     blue.asr <- as.data.frame(summary(uv.asr, coef = TRUE)$coef.fixed) # BLUEs
-    int  <- blue.asr[rownames(blue.asr)%in% c("(Intercept)"), "solution"]  #retrieve intercept value
+    int  <- blue.asr[rownames(blue.asr)%in% c("(Intercept)"), "solution"]  #retrieve intercept value ASReml-R 4.2 notation
     #Create tidy long format file to store the results from all traits
     blue.asr <- blue.asr %>% rownames_to_column()  %>% 
       filter(str_detect(rowname, "strain_")) %>%  #filter rownames with strains
