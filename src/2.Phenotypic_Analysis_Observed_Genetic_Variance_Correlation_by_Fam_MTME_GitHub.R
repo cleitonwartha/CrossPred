@@ -135,7 +135,7 @@ varG.uv <- varComp.uv %>% filter(rowname == "strain") %>% # filter only the gene
 trait.comb <- gtools::combinations(length(traits), 2) #create trait combinations
 trait.comb.chr <- data.frame(trait1= traits[trait.comb[, 1]], trait2= traits[trait.comb[, 2]])
 varComp.bv <-c() #Create empty object to store results from loop
-asreml.options(ai.sing = T, fail= "soft")
+asreml.options(ai.sing = T, fail= "soft") #arguments needed because some of the variance components were near zero in the rG model below
 startTime <- Sys.time() #calculate start time
 ###Loop through the families and trait combinations
 for (f in fam){ #numerical vector of the families
