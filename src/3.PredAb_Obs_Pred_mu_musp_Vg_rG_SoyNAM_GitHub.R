@@ -48,7 +48,6 @@ if (!require('ggridges')) install.packages('ggridges'); library(ggridges)
 if (!require('grid')) install.packages('grid'); library(grid)
 if (!require('gridExtra')) install.packages('gridExtra'); library(gridExtra)
 options(scipen = 999) #prevents use of scientific notation
-
 ##Load object with outpuf files from scripts #1 and #2
 load("data/obj3.RData")
 # pheno: phenotypic BLUEs obtained from ASRemlR 4.2 #script1
@@ -448,8 +447,8 @@ ggsave(filename = "Figure2_2_ScatterPlot_MUSP_Obs_Predicted.png", plot = Musp.sc
 
 #Figure 2.3 Observed by predicted mean and musp
 # Create a vector to replace the parameters in graphs
- parameter<- c("mu",  "mu_sp")
- param_replace <- c("mu" = "mu", "mu_sp" = "musp")
+parameter<- c("mu",  "mu_sp")
+param_replace <- c("mu" = "mu", "mu_sp" = "musp")
 predAccBiasmu_musp <-  predAccBiasmu_musp %>%
   mutate(trait = str_replace_all(trait, trait.replace),
          parameter = str_replace_all(parameter, param_replace))
@@ -458,46 +457,48 @@ predAccBiasmu_musp <-  predAccBiasmu_musp %>%
 df1<- predObsmu_musp %>%
   mutate(trait = str_replace_all(trait, trait.replace)) %>% #replace trait values by actual name
   mutate_at(c('trait', 'parameter'), as.factor) %>%
-      left_join(., predAccBiasmu_musp, by = c("trait", "parameter")) %>%
-      mutate(parameter = str_replace_all(parameter, param_replace),
-             parameter = factor(parameter, levels = param_replace),
-             annotation = str_c("r[MP]==", round(base, 2), "^'", annotation, "'"))
-    # # Split by trait and parameter
-     plot_list <- df1 %>%
-       split(list(.$trait, .$parameter)) %>%
-       map(~{
-         df2 <- .
-         ggplot(df2, aes(x = prediction, y = estimate)) +
-           geom_smooth(method = "lm", se = FALSE, color="darkblue") + 
-           geom_point(aes(colour= Group), size= 2, shape = "circle") + 
-           scale_colour_manual(values= c('#999999','#E69F00','#56B4E9')) +
-           geom_text(data = distinct(df2, trait, parameter, annotation), aes(x = Inf, y = -Inf, label = annotation), 
-                     parse = TRUE, size = 4, hjust = 1.1, vjust = -0.5) + 
-           ylab("Observed") +
-           xlab("Predicted") + 
-           facet_grid(trait ~ parameter, scales = "free", labeller = labeller(parameter = label_parsed), switch = "y") + 
-           scale_y_continuous(breaks = scales::pretty_breaks(), labels = function(x) str_pad(x, width = 2, pad = "0")) + 
-           theme_classic(base_size = 6) +
-           theme(strip.placement = "outside", axis.title = element_blank(), strip.text.y = element_text(size = 11),
-                 legend.position = "none", strip.text.x = element_text(size=15),
-                 axis.text = element_text(size = 8))
-       })
-   # ## Re-order
-     plot_list <- plot_list[c(1,8,2,9,3,10,4,11,5,12,6,13,7,14)]
-     ## Edit parts of the grid
-    ## Remove strips
-     plot_list[c(3:14)] <- plot_list[c(3:14)] %>%
-       map(~ . + theme(strip.text.x = element_blank(), strip.background.x = element_blank()))
-     plot_list[c(2,4,6,8,10,12,14)] <- plot_list[c(2,4,6,8,10,12,14)] %>%
-       map(~ . + theme(strip.text.y = element_blank(), strip.background.y = element_blank()))
-     #Create grids individually
-     p_grid <-  plot_grid(plotlist = plot_list[c(1:14)], ncol = 2, rel_widths = c(1, 0.9, 0.9), align = "v", axis = "l")
-     # ## Add axis
-     y_axis <- grid::textGrob(label = "Observed", gp = grid::gpar(fontsize = 20), rot = 90)
-     x_axis <- grid::textGrob(label = "Predicted", gp = grid::gpar(fontsize = 20))
-    # # Plot again
-    mu.musp.arrange <- grid.arrange(arrangeGrob(p_grid, left = y_axis, bottom = x_axis))
-    ggsave(filename = "Figure_2_3_ScatterPlot_MEAN_MUSP_Obs_Predicted_aligned.png", plot = mu.musp.arrange , height = 13, width = 10, dpi = 1000)    
+  left_join(., predAccBiasmu_musp, by = c("trait", "parameter")) %>%
+  mutate(parameter = str_replace_all(parameter, param_replace),
+         parameter = factor(parameter, levels = param_replace),
+         annotation = str_c("r[MP]==", round(base, 2), "^'", annotation, "'"))
+# # Split by trait and parameter
+plot_list <- df1 %>%
+  split(list(.$trait, .$parameter)) %>%
+  map(~{
+    df2 <- .
+    ggplot(df2, aes(x = prediction, y = estimate)) +
+      geom_smooth(method = "lm", se = FALSE, color="darkblue") + 
+      geom_point(aes(colour= Group), size= 2, shape = "circle") + 
+      scale_colour_manual(values= c('#999999','#E69F00','#56B4E9')) +
+      geom_text(data = distinct(df2, trait, parameter, annotation), aes(x = Inf, y = -Inf, label = annotation), 
+                parse = TRUE, size = 4, hjust = 1.1, vjust = -0.5) + 
+      ylab("Observed") +
+      xlab("Predicted") + 
+      facet_grid(trait ~ parameter, scales = "free", labeller = labeller(parameter = label_parsed), switch = "y") + 
+      scale_y_continuous(breaks = scales::pretty_breaks()) + #, labels= scales::label_number(accuracy = 0.1)
+      scale_x_continuous(breaks = scales::pretty_breaks()) + #, labels= scales::label_number(accuracy = 0.1)
+      theme_classic(base_size = 6) +
+      theme(strip.placement = "outside", axis.title = element_blank(), strip.text.y = element_text(size = 11),
+            legend.position = "none", strip.text.x = element_text(size=15),
+            axis.text = element_text(size = 8))
+  })
+# ## Re-order
+plot_list <- plot_list[c(1,8,2,9,3,10,4,11, 5,12, 6,13,7,14)]
+## Edit parts of the grid
+## Remove strips
+plot_list[c(3:14)] <- plot_list[c(3:14)] %>%
+  map(~ . + theme(strip.text.x = element_blank(), strip.background.x = element_blank()))
+plot_list[c(2,4,6,8,10,12,14)] <- plot_list[c(2,4,6,8,10,12,14)] %>%
+  map(~ . + theme(strip.text.y = element_blank(), strip.background.y = element_blank()))
+#Create grids individually
+p_grid <-  plot_grid(plotlist = plot_list[c(1:14)], ncol = 2, rel_widths = c(1, 0.9, 0.9), align = "v", axis = "l")
+# ## Add axis
+y_axis <- grid::textGrob(label = "Observed", gp = grid::gpar(fontsize = 20), rot = 90)
+x_axis <- grid::textGrob(label = "Predicted", gp = grid::gpar(fontsize = 20))
+# # Plot again
+mu.musp.arrange <- grid.arrange(arrangeGrob(p_grid, left = y_axis, bottom = x_axis))
+ggsave(filename = "Figure_2_3_ScatterPlot_MEAN_MUSP_Obs_Predicted_aligned.png", plot = mu.musp.arrange , height = 13, width = 10, dpi = 1000)
+
 ####################################
 # Figure 3. Observed by predicted varG
 predObsvarG <- predObsvarG %>%
