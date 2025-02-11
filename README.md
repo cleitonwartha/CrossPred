@@ -1,10 +1,11 @@
 # CrossPred
- Genomic predictions of genetic variances and correlations among traits: empirical validation within the SoyNAM
+ Genomic predictions of genetic variances and correlations among traits for breeding crosses in soybean
 # Description
-This repository contains information and code for replicating the analyzes performed in the pre-print manuscript:
+This repository contains information and code for replicating the analyzes performed in the published article:
 
-Manuscript title: "Genomic Predictions of Genetic Variances and Correlations Among Traits in Soybean" (reference number: HDY-23-A0189R)
+Article title: "Genomic predictions of genetic variances and correlations among traits for breeding crosses in soybean"
 
 Authors: Cleiton Antonio Wartha and Aaron Joel Lorenz
 
-Research Square Pre-print: https://doi.org/10.21203/rs.3.rs-3278516/v1
+# Cite this article
+Wartha, C.A., Lorenz, A.J. Genomic predictions of genetic variances and correlations among traits for breeding crosses in soybean. Heredity 133, 173–185 (2024). https://doi.org/10.1038/s41437-024-00703-3
